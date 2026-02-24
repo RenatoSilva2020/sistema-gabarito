@@ -25,7 +25,6 @@
     }
     input[type="text"]:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
     
-    /* ESTILOS DOS NOVOS BOTÕES DE TURMA */
     .grupo-titulo { font-size: 12px; font-weight: 700; color: #6b7280; text-transform: uppercase; margin: 15px 0 8px 0; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px; }
     .grid-turmas { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .btn-turma { 
@@ -35,7 +34,6 @@
     }
     .btn-turma:hover { background-color: #e2e8f0; border-color: #94a3b8; }
 
-    /* ESTILOS DOS NOVOS BOTÕES DE DISCIPLINA */
     .btn-disciplina { 
       display: flex; justify-content: space-between; align-items: center; 
       width: 100%; background: #ffffff; border: 1px solid #cbd5e1; 
@@ -45,12 +43,10 @@
     .btn-disciplina:hover { border-color: #94a3b8; background: #f8fafc; }
     .disc-nome { font-size: 14px; font-weight: 600; color: #1e293b; }
     
-    /* ETIQUETAS DE STATUS (TAGS) */
     .badge { font-size: 11px; font-weight: 700; padding: 4px 8px; border-radius: 12px; letter-spacing: 0.5px; }
-    .badge-pendente { background-color: #ffedd5; color: #c2410c; border: 1px solid #fed7aa; } /* Laranja Elegante */
-    .badge-enviado { background-color: #d1fae5; color: #15803d; border: 1px solid #a7f3d0; } /* Verde Elegante */
+    .badge-pendente { background-color: #ffedd5; color: #c2410c; border: 1px solid #fed7aa; } 
+    .badge-enviado { background-color: #d1fae5; color: #15803d; border: 1px solid #a7f3d0; } 
 
-    /* RESUMO DA SELEÇÃO (Para o usuário saber onde está) */
     .selecao-resumo { 
       display: flex; justify-content: space-between; align-items: center; 
       background: #eff6ff; border: 1px solid #bfdbfe; padding: 10px 15px; 
@@ -58,18 +54,25 @@
     }
     .btn-alterar { background: none; border: none; color: #2563eb; font-weight: 600; font-size: 12px; cursor: pointer; text-decoration: underline; padding: 0; }
 
-    /* BOTOES GERAIS */
     .btn-main { width: 100%; padding: 14px; background-color: #2563eb; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
     .btn-main:hover { background-color: #1d4ed8; }
+    
     .btn-success { background-color: #10b981; width: 100%; padding: 14px; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; margin-top: 15px; cursor: pointer;}
     .btn-success:hover { background-color: #059669; }
-    .btn-red { background-color: #ef4444; width: 100%; padding: 14px; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; margin-top: 15px; cursor: pointer;}
+    
+    /* NOVO BOTÃO DE EDITAR */
+    .btn-warning { background-color: #f59e0b; width: 100%; padding: 14px; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; margin-top: 15px; cursor: pointer;}
+    .btn-warning:hover { background-color: #d97706; }
+
+    .btn-red { background-color: #ef4444; width: 100%; padding: 14px; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; margin-top: 10px; cursor: pointer;}
     .btn-red:hover { background-color: #dc2626; }
 
-    /* GABARITO */
     .questao { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; padding: 10px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; }
     .questao label { margin: 0; width: 35%; font-weight: 600; font-size: 14px; }
     .questao select { width: 60%; padding: 10px; font-size: 14px; border: 1px solid #cbd5e1; border-radius: 6px; }
+    
+    /* ESTILO PARA OS CAMPOS BLOQUEADOS */
+    .questao select:disabled { background-color: #f1f5f9; color: #94a3b8; cursor: not-allowed; border-color: #e2e8f0; opacity: 1; }
     
     .msg { text-align: center; font-weight: 600; margin-top: 15px; font-size: 14px; }
   </style>
@@ -118,7 +121,9 @@
         <div id="questoes-container"></div>
         
         <button id="btn-salvar" class="btn-success" onclick="salvar()">Salvar Gabarito</button>
+        <button id="btn-editar" class="btn-warning hidden" onclick="habilitarEdicao()">Editar Respostas</button>
         <button id="btn-sair" class="btn-red hidden" onclick="sairSistema()">Sair do Sistema</button>
+        
         <div id="save-msg" class="msg"></div>
       </div>
 
@@ -132,6 +137,7 @@
     let isSaved = false;
     let turmaAtual = "";
     let disciplinaAtual = "";
+    let statusAtual = ""; // Variável nova para controlar se já foi enviado
 
     async function apiCall(action, data) {
       const response = await fetch(API_URL + "?action=" + action, {
@@ -194,13 +200,11 @@
 
       ordemGrupos.forEach(nomeGrupo => {
         if(grupos[nomeGrupo] && grupos[nomeGrupo].length > 0) {
-          // Cria o título do grupo
           var titulo = document.createElement('div');
           titulo.className = 'grupo-titulo';
           titulo.innerText = nomeGrupo;
           container.appendChild(titulo);
 
-          // Cria a grade de botões para as turmas
           var grid = document.createElement('div');
           grid.className = 'grid-turmas';
           
@@ -269,11 +273,13 @@
       }
       
       disciplinaAtual = nomeDisciplina;
+      statusAtual = status; // Salva o status para saber se bloqueia as questões
+      
       document.getElementById('lbl-disciplina-selecionada').innerText = nomeDisciplina;
       document.getElementById('step-disciplinas').classList.add('hidden');
       document.getElementById('step-gabarito').classList.remove('hidden');
       
-      carregarQuestoes(nomeDisciplina);
+      carregarQuestoes();
     }
 
     function voltarParaDisciplinas(verificarSalvo = false) {
@@ -288,14 +294,10 @@
       document.getElementById('save-msg').innerText = '';
     }
 
-    async function carregarQuestoes(disciplina) {
+    async function carregarQuestoes() {
       var qContainer = document.getElementById('questoes-container');
       
-      isSaved = false;
-      document.getElementById('btn-salvar').classList.remove('hidden');
-      document.getElementById('btn-sair').classList.add('hidden');
       document.getElementById('save-msg').innerText = '';
-      
       qContainer.innerHTML = '<em style="color:#6b7280; font-size: 13px;">Carregando o formulário...</em>';
 
       var questoes = await apiCall("getQuestoes", { turma: turmaAtual, disciplina: disciplinaAtual });
@@ -313,12 +315,48 @@
           select.appendChild(option);
         });
 
+        // Preenche com a resposta salva, se houver
         if(q.respostaAtual && ['A', 'B', 'C', 'D'].includes(q.respostaAtual)) {
-          select.value = q.respostaAtual; select.style.borderLeft = "4px solid #10b981"; 
+          select.value = q.respostaAtual; 
+          select.style.borderLeft = "4px solid #10b981"; 
+        }
+
+        // Se o status da disciplina for Enviado, já traz bloqueado
+        if(statusAtual === "Enviado") {
+          select.disabled = true;
         }
 
         div.appendChild(label); div.appendChild(select); qContainer.appendChild(div);
       });
+
+      // Lógica de exibição dos botões baseada no Status
+      if(statusAtual === "Enviado") {
+        document.getElementById('btn-salvar').classList.add('hidden');
+        document.getElementById('btn-editar').classList.remove('hidden');
+        document.getElementById('btn-sair').classList.remove('hidden');
+        isSaved = true; // Já considera como salvo, para não dar alerta ao voltar
+      } else {
+        document.getElementById('btn-salvar').classList.remove('hidden');
+        document.getElementById('btn-editar').classList.add('hidden');
+        document.getElementById('btn-sair').classList.add('hidden');
+        isSaved = false;
+      }
+    }
+
+    // NOVA FUNÇÃO: Libera a edição dos campos
+    function habilitarEdicao() {
+      questoesAtuais.forEach(q => {
+        document.getElementById('q_' + q.row).disabled = false;
+      });
+      
+      document.getElementById('btn-editar').classList.add('hidden');
+      document.getElementById('btn-salvar').classList.remove('hidden');
+      
+      var msgBox = document.getElementById('save-msg');
+      msgBox.innerText = "Modo de edição ativado. Altere as respostas e clique em Salvar.";
+      msgBox.style.color = "#d97706"; // Cor laranja
+      
+      isSaved = false; // Como ele abriu para edição, passa a considerar como não salvo
     }
 
     async function salvar() {
@@ -336,11 +374,21 @@
       var res = await apiCall("salvar", { turma: turmaAtual, respostas: respostas });
       if (res.sucesso) {
         msgBox.innerText = "Gabarito salvo com sucesso!"; msgBox.style.color = "#10b981";
-        isSaved = true; 
         
-        // Esconde botão salvar, mostra botão de sair, e recarrega em background as disciplinas para atualizar o badge
+        isSaved = true; 
+        statusAtual = "Enviado"; // Atualiza o status em memória
+        
+        // Bloqueia os campos imediatamente após o sucesso
+        questoesAtuais.forEach(q => {
+          document.getElementById('q_' + q.row).disabled = true;
+        });
+
+        // Troca os botões
         document.getElementById('btn-salvar').classList.add('hidden');
+        document.getElementById('btn-editar').classList.remove('hidden');
         document.getElementById('btn-sair').classList.remove('hidden');
+        
+        // Recarrega em background as disciplinas para atualizar a etiqueta verde/laranja
         carregarDisciplinas(); 
 
       } else {
@@ -349,7 +397,6 @@
     }
 
     function sairSistema() {
-      // Como isSaved é true ao clicar aqui, ele não vai perguntar confirmação
       voltarParaDisciplinas(); 
       voltarParaTurmas();
       document.getElementById('main-section').classList.add('hidden');
