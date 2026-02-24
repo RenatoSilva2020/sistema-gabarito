@@ -1,0 +1,5 @@
+{
+  "name": "Sistema de Gabaritos",
+  "description": "Webapp para professores registrarem gabaritos de questões, com autenticação via MASP e configuração via Google Sheets.",
+  "requestFramePermissions": []
+}
