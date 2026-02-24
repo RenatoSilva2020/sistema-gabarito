@@ -5,12 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Sistema de Gabaritos</title>
   <link rel="icon" href="https://i.ibb.co/JFKTr9sc/logo.png">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; margin: 0; padding: 20px; color: #374151; }
     .container { max-width: 550px; margin: 20px auto; background: white; padding: 35px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); }
     
-    /* Estilo do Logotipo reforçado para aparecer sempre */
     .header-logo { text-align: center; margin-bottom: 20px; }
     .header-logo img { max-height: 90px; width: auto; object-fit: contain; }
 
@@ -19,33 +18,48 @@
     .form-group { margin-bottom: 20px; }
     label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; }
     
+    /* Fonte geral dos inputs e selects reduzida para um visual mais clean */
     input[type="text"], select { 
       width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; box-sizing: border-box; 
-      font-size: 15px; transition: border-color 0.2s, box-shadow 0.2s; 
+      font-size: 14px; /* Diminuído para 14px */
+      transition: border-color 0.2s, box-shadow 0.2s; 
       background-color: #ffffff; 
       color: #111827;
     }
     input[type="text"]:focus, select:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
     select:disabled { background-color: #f3f4f6; cursor: not-allowed; color: #9ca3af; }
     
-    select optgroup { font-weight: bold; color: #111827; background-color: #ffffff; }
-    select option { background-color: #ffffff; color: #374151; font-weight: normal; }
+    /* Índices dos grupos (Turmas) reforçados com negrito e fonte adaptada */
+    select optgroup { 
+      font-weight: 700 !important; 
+      color: #111827; 
+      background-color: #f9fafb; 
+      font-size: 13px;
+    }
     
-    button { width: 100%; padding: 14px; background-color: #2563eb; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: background-color 0.2s; }
+    /* Opções das listas com fonte menor */
+    select option { 
+      background-color: #ffffff; 
+      color: #374151; 
+      font-weight: 400; 
+      font-size: 14px; 
+    }
+    
+    button { width: 100%; padding: 14px; background-color: #2563eb; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; transition: background-color 0.2s; }
     button:hover { background-color: #1d4ed8; }
     .btn-success { background-color: #10b981; margin-top: 15px; margin-bottom: 15px;}
     .btn-success:hover { background-color: #059669; }
     
     .flex-buttons { display: flex; gap: 10px; }
-    .flex-buttons button { margin-top: 0; padding: 12px; font-size: 15px; flex: 1; }
+    .flex-buttons button { margin-top: 0; padding: 12px; font-size: 14px; flex: 1; }
     .btn-blue { background-color: #3b82f6; }
     .btn-blue:hover { background-color: #2563eb; }
     .btn-red { background-color: #ef4444; }
     .btn-red:hover { background-color: #dc2626; }
 
     .questao { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding: 10px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; }
-    .questao label { margin: 0; width: 35%; font-weight: 500; }
-    .questao select { width: 60%; padding: 10px; }
+    .questao label { margin: 0; width: 35%; font-weight: 500; font-size: 14px; }
+    .questao select { width: 60%; padding: 10px; font-size: 14px; }
     .msg { text-align: center; font-weight: 600; margin-top: 15px; font-size: 14px; }
   </style>
 </head>
@@ -68,7 +82,7 @@
     </div>
 
     <div id="main-section" class="hidden">
-      <h3 id="welcome-msg" style="color: #2563eb; text-align: center; margin-bottom: 25px;"></h3>
+      <h3 id="welcome-msg" style="color: #2563eb; text-align: center; margin-bottom: 25px; font-size: 18px;"></h3>
       
       <div class="form-group">
         <label for="turma">Selecione a Turma:</label>
@@ -85,7 +99,7 @@
       </div>
 
       <div id="gabarito-section" class="hidden">
-        <h4 style="border-top: 2px solid #e5e7eb; padding-top: 20px; color: #1f2937;">Preencha o Gabarito:</h4>
+        <h4 style="border-top: 2px solid #e5e7eb; padding-top: 20px; color: #1f2937; font-size: 15px;">Preencha o Gabarito:</h4>
         <div id="questoes-container"></div>
         
         <button id="btn-salvar" class="btn-success" onclick="salvar()">Salvar Gabarito</button>
@@ -206,7 +220,6 @@
         opt.value = d.nome; 
         opt.setAttribute('data-status', d.status);
         
-        // MÁGICA DO ALINHAMENTO E CORES COM EMOJIS AQUI:
         var textoStatus = d.status === "Enviado" ? "🟢 ENVIADO" : "🟠 PENDENTE";
         opt.innerText = textoStatus + " | " + d.nome;
         
@@ -240,7 +253,7 @@
       document.getElementById('save-msg').innerText = '';
       
       document.getElementById('gabarito-section').classList.remove('hidden');
-      qContainer.innerHTML = '<em style="color:#6b7280;">Carregando o formulário...</em>';
+      qContainer.innerHTML = '<em style="color:#6b7280; font-size: 14px;">Carregando o formulário...</em>';
 
       var questoes = await apiCall("getQuestoes", { turma: turma, disciplina: disciplina });
       questoesAtuais = questoes;
@@ -287,7 +300,6 @@
         var opcao = selectDisc.options[selectDisc.selectedIndex];
         opcao.setAttribute('data-status', 'Enviado'); 
         
-        // Atualiza a visualização com o emoji verde após salvar
         opcao.innerText = "🟢 ENVIADO | " + selectDisc.value;
         
         document.getElementById('btn-salvar').classList.add('hidden');
