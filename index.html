@@ -7,65 +7,75 @@
   <link rel="icon" href="https://i.ibb.co/JFKTr9sc/logo.png">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; margin: 0; padding: 20px; color: #374151; }
-    .container { max-width: 550px; margin: 20px auto; background: white; padding: 35px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); }
+    body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; margin: 0; padding: 15px; color: #374151; }
+    .container { max-width: 550px; margin: 10px auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
     
     .header-logo { text-align: center; margin-bottom: 20px; }
-    .header-logo img { max-height: 90px; width: auto; object-fit: contain; }
+    .header-logo img { max-height: 85px; width: auto; object-fit: contain; }
 
-    h2 { text-align: center; color: #111827; margin-bottom: 25px; margin-top: 0; }
+    h2 { text-align: center; color: #111827; margin-bottom: 25px; margin-top: 0; font-size: 22px; }
+    h3 { color: #2563eb; text-align: center; margin-bottom: 20px; font-size: 16px; }
     .hidden { display: none !important; }
     .form-group { margin-bottom: 20px; }
-    label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; }
+    label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; color: #1f2937; }
     
-    /* Fonte geral dos inputs e selects reduzida para um visual mais clean */
-    input[type="text"], select { 
+    input[type="text"] { 
       width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; box-sizing: border-box; 
-      font-size: 14px; /* Diminuído para 14px */
-      transition: border-color 0.2s, box-shadow 0.2s; 
-      background-color: #ffffff; 
-      color: #111827;
+      font-size: 14px; transition: border-color 0.2s; background-color: #ffffff; color: #111827;
     }
-    input[type="text"]:focus, select:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
-    select:disabled { background-color: #f3f4f6; cursor: not-allowed; color: #9ca3af; }
+    input[type="text"]:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
     
-    /* Índices dos grupos (Turmas) reforçados com negrito e fonte adaptada */
-    select optgroup { 
-      font-weight: 700 !important; 
-      color: #111827; 
-      background-color: #f9fafb; 
-      font-size: 13px;
+    /* ESTILOS DOS NOVOS BOTÕES DE TURMA */
+    .grupo-titulo { font-size: 12px; font-weight: 700; color: #6b7280; text-transform: uppercase; margin: 15px 0 8px 0; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px; }
+    .grid-turmas { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .btn-turma { 
+      background-color: #f8fafc; border: 1px solid #cbd5e1; color: #334155; 
+      padding: 10px; border-radius: 6px; font-size: 13px; font-weight: 500; 
+      cursor: pointer; text-align: center; transition: all 0.2s;
     }
-    
-    /* Opções das listas com fonte menor */
-    select option { 
-      background-color: #ffffff; 
-      color: #374151; 
-      font-weight: 400; 
-      font-size: 14px; 
+    .btn-turma:hover { background-color: #e2e8f0; border-color: #94a3b8; }
+
+    /* ESTILOS DOS NOVOS BOTÕES DE DISCIPLINA */
+    .btn-disciplina { 
+      display: flex; justify-content: space-between; align-items: center; 
+      width: 100%; background: #ffffff; border: 1px solid #cbd5e1; 
+      padding: 12px 15px; border-radius: 8px; margin-bottom: 8px; 
+      cursor: pointer; transition: all 0.2s; box-sizing: border-box;
     }
+    .btn-disciplina:hover { border-color: #94a3b8; background: #f8fafc; }
+    .disc-nome { font-size: 14px; font-weight: 600; color: #1e293b; }
     
-    button { width: 100%; padding: 14px; background-color: #2563eb; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; transition: background-color 0.2s; }
-    button:hover { background-color: #1d4ed8; }
-    .btn-success { background-color: #10b981; margin-top: 15px; margin-bottom: 15px;}
+    /* ETIQUETAS DE STATUS (TAGS) */
+    .badge { font-size: 11px; font-weight: 700; padding: 4px 8px; border-radius: 12px; letter-spacing: 0.5px; }
+    .badge-pendente { background-color: #ffedd5; color: #c2410c; border: 1px solid #fed7aa; } /* Laranja Elegante */
+    .badge-enviado { background-color: #d1fae5; color: #15803d; border: 1px solid #a7f3d0; } /* Verde Elegante */
+
+    /* RESUMO DA SELEÇÃO (Para o usuário saber onde está) */
+    .selecao-resumo { 
+      display: flex; justify-content: space-between; align-items: center; 
+      background: #eff6ff; border: 1px solid #bfdbfe; padding: 10px 15px; 
+      border-radius: 8px; margin-bottom: 15px; font-size: 13px;
+    }
+    .btn-alterar { background: none; border: none; color: #2563eb; font-weight: 600; font-size: 12px; cursor: pointer; text-decoration: underline; padding: 0; }
+
+    /* BOTOES GERAIS */
+    .btn-main { width: 100%; padding: 14px; background-color: #2563eb; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
+    .btn-main:hover { background-color: #1d4ed8; }
+    .btn-success { background-color: #10b981; width: 100%; padding: 14px; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; margin-top: 15px; cursor: pointer;}
     .btn-success:hover { background-color: #059669; }
-    
-    .flex-buttons { display: flex; gap: 10px; }
-    .flex-buttons button { margin-top: 0; padding: 12px; font-size: 14px; flex: 1; }
-    .btn-blue { background-color: #3b82f6; }
-    .btn-blue:hover { background-color: #2563eb; }
-    .btn-red { background-color: #ef4444; }
+    .btn-red { background-color: #ef4444; width: 100%; padding: 14px; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; margin-top: 15px; cursor: pointer;}
     .btn-red:hover { background-color: #dc2626; }
 
-    .questao { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding: 10px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; }
-    .questao label { margin: 0; width: 35%; font-weight: 500; font-size: 14px; }
-    .questao select { width: 60%; padding: 10px; font-size: 14px; }
+    /* GABARITO */
+    .questao { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; padding: 10px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; }
+    .questao label { margin: 0; width: 35%; font-weight: 600; font-size: 14px; }
+    .questao select { width: 60%; padding: 10px; font-size: 14px; border: 1px solid #cbd5e1; border-radius: 6px; }
+    
     .msg { text-align: center; font-weight: 600; margin-top: 15px; font-size: 14px; }
   </style>
 </head>
 <body>
   <div class="container">
-    
     <div class="header-logo">
       <img src="https://i.ibb.co/JFKTr9sc/logo.png" alt="Logotipo da Instituição">
     </div>
@@ -77,48 +87,51 @@
         <label for="masp">Digite seu MASP:</label>
         <input type="text" id="masp" autocomplete="off" placeholder="Ex: 12345678">
       </div>
-      <button onclick="fazerLogin()">Entrar no Sistema</button>
+      <button class="btn-main" onclick="fazerLogin()">Entrar no Sistema</button>
       <div id="login-msg" class="msg"></div>
     </div>
 
     <div id="main-section" class="hidden">
-      <h3 id="welcome-msg" style="color: #2563eb; text-align: center; margin-bottom: 25px; font-size: 18px;"></h3>
+      <h3 id="welcome-msg"></h3>
       
-      <div class="form-group">
-        <label for="turma">Selecione a Turma:</label>
-        <select id="turma" onchange="carregarDisciplinas()">
-          <option value="">-- Aguarde... --</option>
-        </select>
+      <div id="step-turmas">
+        <label>Selecione a Turma:</label>
+        <div id="turmas-container"><em style="font-size: 13px; color:#6b7280;">Carregando turmas...</em></div>
       </div>
       
-      <div class="form-group">
-        <label for="disciplina">Selecione a Disciplina:</label>
-        <select id="disciplina" onchange="iniciarCarregamentoQuestoes()" disabled>
-          <option value="">-- Selecione a Turma Primeiro --</option>
-        </select>
+      <div id="step-disciplinas" class="hidden">
+        <div class="selecao-resumo">
+          <div>Turma: <strong id="lbl-turma-selecionada"></strong></div>
+          <button class="btn-alterar" onclick="voltarParaTurmas()">Trocar Turma</button>
+        </div>
+        <label>Selecione a Disciplina:</label>
+        <div id="disciplinas-container"></div>
       </div>
 
-      <div id="gabarito-section" class="hidden">
-        <h4 style="border-top: 2px solid #e5e7eb; padding-top: 20px; color: #1f2937; font-size: 15px;">Preencha o Gabarito:</h4>
+      <div id="step-gabarito" class="hidden">
+        <div class="selecao-resumo" style="background: #f0fdf4; border-color: #bbf7d0;">
+          <div>Disciplina: <strong id="lbl-disciplina-selecionada"></strong></div>
+          <button class="btn-alterar" onclick="voltarParaDisciplinas(true)" style="color: #15803d;">Sair da Disciplina</button>
+        </div>
+        
+        <h4 style="margin-top: 10px; margin-bottom: 15px; font-size: 15px; color: #1f2937;">Preencha o Gabarito:</h4>
         <div id="questoes-container"></div>
         
         <button id="btn-salvar" class="btn-success" onclick="salvar()">Salvar Gabarito</button>
-        
-        <div class="flex-buttons">
-          <button id="btn-voltar" class="btn-blue" onclick="voltarTurmas()">Voltar (Selecionar Turmas)</button>
-          <button id="btn-sair" class="btn-red hidden" onclick="sairSistema()">Sair do Sistema</button>
-        </div>
-
+        <button id="btn-sair" class="btn-red hidden" onclick="sairSistema()">Sair do Sistema</button>
         <div id="save-msg" class="msg"></div>
       </div>
+
     </div>
   </div>
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbwQ9lhzFT7w5SrZZWVTy4RTlkUxGCHiALLWFKDvSuCy1HqL3NpOrGvMDTvcwNSKMbZS/exec"; 
     
-    var questoesAtuais = [];
-    var isSaved = false;
+    let questoesAtuais = [];
+    let isSaved = false;
+    let turmaAtual = "";
+    let disciplinaAtual = "";
 
     async function apiCall(action, data) {
       const response = await fetch(API_URL + "?action=" + action, {
@@ -164,8 +177,8 @@
 
     async function carregarTurmas() {
       var turmas = await apiCall("getTurmas", {});
-      var select = document.getElementById('turma');
-      select.innerHTML = '<option value="">-- Selecione a Turma --</option>';
+      var container = document.getElementById('turmas-container');
+      container.innerHTML = '';
       
       var grupos = {};
       turmas.forEach(t => {
@@ -175,87 +188,117 @@
       });
 
       var ordemGrupos = [
-        "FUNDAMENTAL", 
-        "REGULAR DIURNO", 
-        "REGULAR NOTURNO (SEDE)", 
-        "REGULAR NOTURNO (MORADA)", 
-        "EJA NOTURNO (SEDE)", 
-        "EJA NOTURNO (MORADA)", 
-        "OUTRAS TURMAS"
+        "FUNDAMENTAL", "REGULAR DIURNO", "REGULAR NOTURNO (SEDE)", 
+        "REGULAR NOTURNO (MORADA)", "EJA NOTURNO (SEDE)", "EJA NOTURNO (MORADA)", "OUTRAS TURMAS"
       ];
 
       ordemGrupos.forEach(nomeGrupo => {
         if(grupos[nomeGrupo] && grupos[nomeGrupo].length > 0) {
-          var optgroup = document.createElement('optgroup');
-          optgroup.label = nomeGrupo;
+          // Cria o título do grupo
+          var titulo = document.createElement('div');
+          titulo.className = 'grupo-titulo';
+          titulo.innerText = nomeGrupo;
+          container.appendChild(titulo);
+
+          // Cria a grade de botões para as turmas
+          var grid = document.createElement('div');
+          grid.className = 'grid-turmas';
+          
           grupos[nomeGrupo].forEach(turmaNome => {
-            var opt = document.createElement('option');
-            opt.value = turmaNome; opt.innerText = turmaNome;
-            optgroup.appendChild(opt);
+            var btn = document.createElement('button');
+            btn.className = 'btn-turma';
+            btn.innerText = turmaNome;
+            btn.onclick = () => selecionarTurma(turmaNome);
+            grid.appendChild(btn);
           });
-          select.appendChild(optgroup);
+          
+          container.appendChild(grid);
         }
       });
+    }
+
+    function selecionarTurma(nomeTurma) {
+      turmaAtual = nomeTurma;
+      document.getElementById('lbl-turma-selecionada').innerText = nomeTurma;
+      document.getElementById('step-turmas').classList.add('hidden');
+      document.getElementById('step-disciplinas').classList.remove('hidden');
+      carregarDisciplinas();
+    }
+
+    function voltarParaTurmas() {
+      document.getElementById('step-disciplinas').classList.add('hidden');
+      document.getElementById('step-turmas').classList.remove('hidden');
     }
 
     async function carregarDisciplinas() {
-      var turma = document.getElementById('turma').value;
-      var selectDisc = document.getElementById('disciplina');
-      document.getElementById('gabarito-section').classList.add('hidden');
-      
-      if (!turma) { 
-        selectDisc.innerHTML = '<option value="">-- Selecione a Turma Primeiro --</option>'; 
-        selectDisc.disabled = true; 
-        return; 
-      }
-      
-      selectDisc.innerHTML = '<option value="">Buscando disciplinas...</option>';
-      selectDisc.disabled = true;
+      var container = document.getElementById('disciplinas-container');
+      container.innerHTML = '<em style="font-size: 13px; color:#6b7280;">Buscando disciplinas...</em>';
 
-      var disciplinas = await apiCall("getDisciplinas", { turma: turma });
-      selectDisc.innerHTML = '<option value="">-- Selecione a Disciplina --</option>';
+      var disciplinas = await apiCall("getDisciplinas", { turma: turmaAtual });
+      container.innerHTML = '';
       
       disciplinas.forEach(d => {
-        var opt = document.createElement('option');
-        opt.value = d.nome; 
-        opt.setAttribute('data-status', d.status);
+        var btn = document.createElement('button');
+        btn.className = 'btn-disciplina';
+        btn.onclick = () => selecionarDisciplina(d.nome, d.status);
         
-        var textoStatus = d.status === "Enviado" ? "🟢 ENVIADO" : "🟠 PENDENTE";
-        opt.innerText = textoStatus + " | " + d.nome;
-        
-        selectDisc.appendChild(opt);
+        var spanNome = document.createElement('span');
+        spanNome.className = 'disc-nome';
+        spanNome.innerText = d.nome;
+
+        var spanStatus = document.createElement('span');
+        if(d.status === "Enviado") {
+          spanStatus.className = 'badge badge-enviado';
+          spanStatus.innerText = 'ENVIADO';
+        } else {
+          spanStatus.className = 'badge badge-pendente';
+          spanStatus.innerText = 'PENDENTE';
+        }
+
+        btn.appendChild(spanNome);
+        btn.appendChild(spanStatus);
+        container.appendChild(btn);
       });
-      selectDisc.disabled = false;
     }
 
-    function iniciarCarregamentoQuestoes() {
-      var selectDisc = document.getElementById('disciplina');
-      if (!selectDisc.value) { document.getElementById('gabarito-section').classList.add('hidden'); return; }
-
-      if (selectDisc.options[selectDisc.selectedIndex].getAttribute('data-status') === "Enviado") {
+    function selecionarDisciplina(nomeDisciplina, status) {
+      if (status === "Enviado") {
         if (!confirm("Esta disciplina já possui um gabarito cadastrado!\n\nDeseja visualizar/editar os registros existentes?")) {
-          selectDisc.value = ""; document.getElementById('gabarito-section').classList.add('hidden'); return;
+          return;
         }
       }
-      carregarQuestoes(selectDisc.value);
+      
+      disciplinaAtual = nomeDisciplina;
+      document.getElementById('lbl-disciplina-selecionada').innerText = nomeDisciplina;
+      document.getElementById('step-disciplinas').classList.add('hidden');
+      document.getElementById('step-gabarito').classList.remove('hidden');
+      
+      carregarQuestoes(nomeDisciplina);
+    }
+
+    function voltarParaDisciplinas(verificarSalvo = false) {
+      if (verificarSalvo && !isSaved) {
+        if (!confirm("Atenção: Você tem alterações que ainda não foram salvas!\n\nTem certeza que deseja sair e perder essas alterações?")) {
+          return; 
+        }
+      }
+      
+      document.getElementById('step-gabarito').classList.add('hidden');
+      document.getElementById('step-disciplinas').classList.remove('hidden');
+      document.getElementById('save-msg').innerText = '';
     }
 
     async function carregarQuestoes(disciplina) {
-      var turma = document.getElementById('turma').value;
       var qContainer = document.getElementById('questoes-container');
-      
-      document.getElementById('turma').disabled = true;
-      document.getElementById('disciplina').disabled = true;
       
       isSaved = false;
       document.getElementById('btn-salvar').classList.remove('hidden');
       document.getElementById('btn-sair').classList.add('hidden');
       document.getElementById('save-msg').innerText = '';
       
-      document.getElementById('gabarito-section').classList.remove('hidden');
-      qContainer.innerHTML = '<em style="color:#6b7280; font-size: 14px;">Carregando o formulário...</em>';
+      qContainer.innerHTML = '<em style="color:#6b7280; font-size: 13px;">Carregando o formulário...</em>';
 
-      var questoes = await apiCall("getQuestoes", { turma: turma, disciplina: disciplina });
+      var questoes = await apiCall("getQuestoes", { turma: turmaAtual, disciplina: disciplinaAtual });
       questoesAtuais = questoes;
       qContainer.innerHTML = '';
       
@@ -290,46 +333,25 @@
 
       msgBox.innerText = "Salvando gabarito... Por favor, aguarde."; msgBox.style.color = "#3b82f6";
 
-      var res = await apiCall("salvar", { turma: document.getElementById('turma').value, respostas: respostas });
+      var res = await apiCall("salvar", { turma: turmaAtual, respostas: respostas });
       if (res.sucesso) {
         msgBox.innerText = "Gabarito salvo com sucesso!"; msgBox.style.color = "#10b981";
-        
         isSaved = true; 
         
-        var selectDisc = document.getElementById('disciplina');
-        var opcao = selectDisc.options[selectDisc.selectedIndex];
-        opcao.setAttribute('data-status', 'Enviado'); 
-        
-        opcao.innerText = "🟢 ENVIADO | " + selectDisc.value;
-        
+        // Esconde botão salvar, mostra botão de sair, e recarrega em background as disciplinas para atualizar o badge
         document.getElementById('btn-salvar').classList.add('hidden');
         document.getElementById('btn-sair').classList.remove('hidden');
+        carregarDisciplinas(); 
 
       } else {
         msgBox.innerText = "Erro ao salvar: " + res.erro; msgBox.style.color = "#ef4444";
       }
     }
 
-    function voltarTurmas() {
-      if (!isSaved && !document.getElementById('gabarito-section').classList.contains('hidden')) {
-        if (!confirm("Atenção: Você tem alterações que ainda não foram salvas!\n\nTem certeza que deseja sair e perder essas alterações?")) {
-          return; 
-        }
-      }
-
-      document.getElementById('turma').value = "";
-      document.getElementById('turma').disabled = false;
-      
-      var selectDisc = document.getElementById('disciplina');
-      selectDisc.innerHTML = '<option value="">-- Selecione a Turma Primeiro --</option>';
-      selectDisc.disabled = true;
-      
-      document.getElementById('gabarito-section').classList.add('hidden');
-      document.getElementById('save-msg').innerText = "";
-    }
-
     function sairSistema() {
-      voltarTurmas(); 
+      // Como isSaved é true ao clicar aqui, ele não vai perguntar confirmação
+      voltarParaDisciplinas(); 
+      voltarParaTurmas();
       document.getElementById('main-section').classList.add('hidden');
       document.getElementById('login-section').classList.remove('hidden');
       document.getElementById('masp').value = "";
