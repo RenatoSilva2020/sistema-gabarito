@@ -10,22 +10,24 @@
     body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; margin: 0; padding: 20px; color: #374151; }
     .container { max-width: 550px; margin: 20px auto; background: white; padding: 35px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); }
     
-    h2 { text-align: center; color: #111827; margin-bottom: 25px; margin-top: 10px; }
+    /* Estilo do Logotipo reforçado para aparecer sempre */
+    .header-logo { text-align: center; margin-bottom: 20px; }
+    .header-logo img { max-height: 90px; width: auto; object-fit: contain; }
+
+    h2 { text-align: center; color: #111827; margin-bottom: 25px; margin-top: 0; }
     .hidden { display: none !important; }
     .form-group { margin-bottom: 20px; }
     label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; }
     
-    /* Inputs e Selects com fundo branco */
     input[type="text"], select { 
       width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; box-sizing: border-box; 
       font-size: 15px; transition: border-color 0.2s, box-shadow 0.2s; 
-      background-color: #ffffff; /* Fundo branco garantido */
+      background-color: #ffffff; 
       color: #111827;
     }
     input[type="text"]:focus, select:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
     select:disabled { background-color: #f3f4f6; cursor: not-allowed; color: #9ca3af; }
     
-    /* Estilização elegante da lista do select */
     select optgroup { font-weight: bold; color: #111827; background-color: #ffffff; }
     select option { background-color: #ffffff; color: #374151; font-weight: normal; }
     
@@ -50,8 +52,8 @@
 <body>
   <div class="container">
     
-    <div style="text-align: center; margin-bottom: 15px;">
-      <img src="https://i.ibb.co/JFKTr9sc/logo.png" alt="Logotipo da Instituição" style="max-height: 95px; width: auto; object-fit: contain;">
+    <div class="header-logo">
+      <img src="https://i.ibb.co/JFKTr9sc/logo.png" alt="Logotipo da Instituição">
     </div>
 
     <h2>Sistema de Gabaritos</h2>
@@ -59,7 +61,7 @@
     <div id="login-section">
       <div class="form-group">
         <label for="masp">Digite seu MASP:</label>
-        <input type="text" id="masp" autocomplete="off">
+        <input type="text" id="masp" autocomplete="off" placeholder="Ex: 12345678">
       </div>
       <button onclick="fazerLogin()">Entrar no Sistema</button>
       <div id="login-msg" class="msg"></div>
@@ -135,7 +137,6 @@
       }
     }
 
-    // NOVA FUNÇÃO: Adaptada para ler exatamente os espaços e traços da sua planilha
     function classificarTurma(nome) {
       var n = nome.toUpperCase();
       if (n.includes("ANO")) return "FUNDAMENTAL";
@@ -159,7 +160,6 @@
         grupos[grupo].push(t);
       });
 
-      // NOVO AGRUPAMENTO: Atualizado com os nomes exatos
       var ordemGrupos = [
         "FUNDAMENTAL", 
         "REGULAR DIURNO", 
@@ -203,8 +203,13 @@
       
       disciplinas.forEach(d => {
         var opt = document.createElement('option');
-        opt.value = d.nome; opt.setAttribute('data-status', d.status);
-        opt.innerText = d.nome + (d.status === "Enviado" ? " (✓ Enviado)" : " (Pendente)");
+        opt.value = d.nome; 
+        opt.setAttribute('data-status', d.status);
+        
+        // MÁGICA DO ALINHAMENTO E CORES COM EMOJIS AQUI:
+        var textoStatus = d.status === "Enviado" ? "🟢 ENVIADO" : "🟠 PENDENTE";
+        opt.innerText = textoStatus + " | " + d.nome;
+        
         selectDisc.appendChild(opt);
       });
       selectDisc.disabled = false;
@@ -281,7 +286,9 @@
         var selectDisc = document.getElementById('disciplina');
         var opcao = selectDisc.options[selectDisc.selectedIndex];
         opcao.setAttribute('data-status', 'Enviado'); 
-        opcao.innerText = selectDisc.value + " (✓ Enviado)";
+        
+        // Atualiza a visualização com o emoji verde após salvar
+        opcao.innerText = "🟢 ENVIADO | " + selectDisc.value;
         
         document.getElementById('btn-salvar').classList.add('hidden');
         document.getElementById('btn-sair').classList.remove('hidden');
