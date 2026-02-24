@@ -1,13 +1,311 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Google AI Studio App</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
-</html>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sistema de Gabaritos</title>
+  <link rel="icon" href="https://i.ibb.co/JFKTr9sc/logo.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; margin: 0; padding: 20px; color: #374151; }
+    .container { max-width: 550px; margin: 20px auto; background: white; padding: 35px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); }
+    
+    /* Estilos do Logotipo */
+    .logo-container { text-align: center; margin-bottom: 10px; }
+    .logo-container img { max-height: 95px; width: auto; object-fit: contain; }
+    
+    h2 { text-align: center; color: #111827; margin-bottom: 25px; margin-top: 10px; }
+    .hidden { display: none !important; }
+    .form-group { margin-bottom: 20px; }
+    label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; }
+    input[type="text"], select { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; box-sizing: border-box; font-size: 15px; transition: border-color 0.2s, box-shadow 0.2s; background-color: #f9fafb; }
+    input[type="text"]:focus, select:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); background-color: white; }
+    select:disabled { background-color: #e5e7eb; cursor: not-allowed; color: #6b7280; }
+    select optgroup { font-weight: 600; color: #4b5563; background: #e5e7eb; }
+    select option { background: white; color: #111827; }
+    
+    button { width: 100%; padding: 14px; background-color: #2563eb; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: background-color 0.2s; }
+    button:hover { background-color: #1d4ed8; }
+    .btn-success { background-color: #10b981; margin-top: 15px; margin-bottom: 15px;}
+    .btn-success:hover { background-color: #059669; }
+    
+    /* Estilos para os botões alinhados */
+    .flex-buttons { display: flex; gap: 10px; }
+    .flex-buttons button { margin-top: 0; padding: 12px; font-size: 15px; flex: 1; }
+    .btn-blue { background-color: #3b82f6; }
+    .btn-blue:hover { background-color: #2563eb; }
+    .btn-red { background-color: #ef4444; }
+    .btn-red:hover { background-color: #dc2626; }
 
+    .questao { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding: 10px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; }
+    .questao label { margin: 0; width: 35%; font-weight: 500; }
+    .questao select { width: 60%; padding: 10px; }
+    .msg { text-align: center; font-weight: 600; margin-top: 15px; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    
+    <div class="logo-container">
+      <img src="https://i.ibb.co/JFKTr9sc/logo.png" alt="Logotipo da Instituição">
+    </div>
+
+    <h2>Sistema de Gabaritos</h2>
+    
+    <div id="login-section">
+      <div class="form-group">
+        <label for="masp">Digite seu MASP:</label>
+        <input type="text" id="masp" autocomplete="off">
+      </div>
+      <button onclick="fazerLogin()">Entrar no Sistema</button>
+      <div id="login-msg" class="msg"></div>
+    </div>
+
+    <div id="main-section" class="hidden">
+      <h3 id="welcome-msg" style="color: #2563eb; text-align: center; margin-bottom: 25px;"></h3>
+      
+      <div class="form-group">
+        <label for="turma">Selecione a Turma:</label>
+        <select id="turma" onchange="carregarDisciplinas()">
+          <option value="">-- Aguarde... --</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="disciplina">Selecione a Disciplina:</label>
+        <select id="disciplina" onchange="iniciarCarregamentoQuestoes()" disabled>
+          <option value="">-- Selecione a Turma Primeiro --</option>
+        </select>
+      </div>
+
+      <div id="gabarito-section" class="hidden">
+        <h4 style="border-top: 2px solid #e5e7eb; padding-top: 20px; color: #1f2937;">Preencha o Gabarito:</h4>
+        <div id="questoes-container"></div>
+        
+        <button id="btn-salvar" class="btn-success" onclick="salvar()">Salvar Gabarito</button>
+        
+        <div class="flex-buttons">
+          <button id="btn-voltar" class="btn-blue" onclick="voltarTurmas()">Voltar (Selecionar Turmas)</button>
+          <button id="btn-sair" class="btn-red hidden" onclick="sairSistema()">Sair do Sistema</button>
+        </div>
+
+        <div id="save-msg" class="msg"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbwQ9lhzFT7w5SrZZWVTy4RTlkUxGCHiALLWFKDvSuCy1HqL3NpOrGvMDTvcwNSKMbZS/exec"; 
+    
+    var questoesAtuais = [];
+    var isSaved = false; // Variável de controle para saber se o usuário já salvou
+
+    async function apiCall(action, data) {
+      const response = await fetch(API_URL + "?action=" + action, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(data)
+      });
+      return await response.json();
+    }
+
+    async function fazerLogin() {
+      var masp = document.getElementById('masp').value;
+      if (!masp) { alert('Por favor, informe o MASP.'); return; }
+      
+      var msgBox = document.getElementById('login-msg');
+      msgBox.innerText = "Autenticando..."; msgBox.style.color = "#3b82f6";
+
+      try {
+        var res = await apiCall("login", { masp: masp });
+        if (res.sucesso) {
+          document.getElementById('login-section').classList.add('hidden');
+          document.getElementById('main-section').classList.remove('hidden');
+          document.getElementById('welcome-msg').innerText = "Olá, " + res.nome;
+          carregarTurmas();
+        } else {
+          msgBox.innerText = res.erro; msgBox.style.color = "#ef4444";
+        }
+      } catch (error) {
+        msgBox.innerText = "Erro de conexão. Verifique sua internet."; msgBox.style.color = "#ef4444";
+      }
+    }
+
+    function classificarTurma(nome) {
+      if (/6.*ANO|7.*ANO|8.*ANO|9.*ANO/i.test(nome)) return "FUNDAMENTAL";
+      if (/REG-DIURNO/i.test(nome)) return "MÉDIO DIURNO";
+      if (/REG-NOT-S/i.test(nome)) return "MÉDIO NOTURNO - SEDE";
+      if (/REG-NOT-M/i.test(nome)) return "MÉDIO NOTURNO - MORADA";
+      if (/EJA-S/i.test(nome)) return "EJA NOTURNO - SEDE";
+      if (/EJA-M/i.test(nome)) return "EJA NOTURNO - MORADA";
+      return "OUTRAS TURMAS";
+    }
+
+    async function carregarTurmas() {
+      var turmas = await apiCall("getTurmas", {});
+      var select = document.getElementById('turma');
+      select.innerHTML = '<option value="">-- Selecione a Turma --</option>';
+      
+      var grupos = {};
+      turmas.forEach(t => {
+        var grupo = classificarTurma(t);
+        if(!grupos[grupo]) grupos[grupo] = [];
+        grupos[grupo].push(t);
+      });
+
+      var ordemGrupos = ["FUNDAMENTAL", "MÉDIO DIURNO", "MÉDIO NOTURNO - SEDE", "MÉDIO NOTURNO - MORADA", "EJA NOTURNO - SEDE", "EJA NOTURNO - MORADA", "OUTRAS TURMAS"];
+      ordemGrupos.forEach(nomeGrupo => {
+        if(grupos[nomeGrupo] && grupos[nomeGrupo].length > 0) {
+          var optgroup = document.createElement('optgroup');
+          optgroup.label = nomeGrupo;
+          grupos[nomeGrupo].forEach(turmaNome => {
+            var opt = document.createElement('option');
+            opt.value = turmaNome; opt.innerText = turmaNome;
+            optgroup.appendChild(opt);
+          });
+          select.appendChild(optgroup);
+        }
+      });
+    }
+
+    async function carregarDisciplinas() {
+      var turma = document.getElementById('turma').value;
+      var selectDisc = document.getElementById('disciplina');
+      document.getElementById('gabarito-section').classList.add('hidden');
+      
+      if (!turma) { 
+        selectDisc.innerHTML = '<option value="">-- Selecione a Turma Primeiro --</option>'; 
+        selectDisc.disabled = true; 
+        return; 
+      }
+      
+      selectDisc.innerHTML = '<option value="">Buscando disciplinas...</option>';
+      selectDisc.disabled = true;
+
+      var disciplinas = await apiCall("getDisciplinas", { turma: turma });
+      selectDisc.innerHTML = '<option value="">-- Selecione a Disciplina --</option>';
+      
+      disciplinas.forEach(d => {
+        var opt = document.createElement('option');
+        opt.value = d.nome; opt.setAttribute('data-status', d.status);
+        opt.innerText = d.nome + (d.status === "Enviado" ? " (✓ Enviado)" : " (Pendente)");
+        selectDisc.appendChild(opt);
+      });
+      selectDisc.disabled = false;
+    }
+
+    function iniciarCarregamentoQuestoes() {
+      var selectDisc = document.getElementById('disciplina');
+      if (!selectDisc.value) { document.getElementById('gabarito-section').classList.add('hidden'); return; }
+
+      if (selectDisc.options[selectDisc.selectedIndex].getAttribute('data-status') === "Enviado") {
+        if (!confirm("Esta disciplina já possui um gabarito cadastrado!\n\nDeseja visualizar/editar os registros existentes?")) {
+          selectDisc.value = ""; document.getElementById('gabarito-section').classList.add('hidden'); return;
+        }
+      }
+      carregarQuestoes(selectDisc.value);
+    }
+
+    async function carregarQuestoes(disciplina) {
+      var turma = document.getElementById('turma').value;
+      var qContainer = document.getElementById('questoes-container');
+      
+      // Trava os selects de turma e disciplina para forçar o uso do botão Voltar
+      document.getElementById('turma').disabled = true;
+      document.getElementById('disciplina').disabled = true;
+      
+      // Reseta os estados de salvamento e visibilidade dos botões
+      isSaved = false;
+      document.getElementById('btn-salvar').classList.remove('hidden');
+      document.getElementById('btn-sair').classList.add('hidden');
+      document.getElementById('save-msg').innerText = '';
+      
+      document.getElementById('gabarito-section').classList.remove('hidden');
+      qContainer.innerHTML = '<em style="color:#6b7280;">Carregando o formulário...</em>';
+
+      var questoes = await apiCall("getQuestoes", { turma: turma, disciplina: disciplina });
+      questoesAtuais = questoes;
+      qContainer.innerHTML = '';
+      
+      questoes.forEach(q => {
+        var div = document.createElement('div'); div.className = 'questao';
+        var label = document.createElement('label'); label.innerText = 'Questão ' + q.qNo + ': ';
+        var select = document.createElement('select'); select.id = 'q_' + q.row;
+        
+        ['-', 'A', 'B', 'C', 'D'].forEach(o => {
+          var option = document.createElement('option');
+          option.value = o === '-' ? '' : o; option.innerText = o;
+          select.appendChild(option);
+        });
+
+        if(q.respostaAtual && ['A', 'B', 'C', 'D'].includes(q.respostaAtual)) {
+          select.value = q.respostaAtual; select.style.borderLeft = "4px solid #10b981"; 
+        }
+
+        div.appendChild(label); div.appendChild(select); qContainer.appendChild(div);
+      });
+    }
+
+    async function salvar() {
+      var respostas = [];
+      questoesAtuais.forEach(q => {
+        var val = document.getElementById('q_' + q.row).value;
+        if (val) respostas.push({ row: q.row, valor: val });
+      });
+
+      var msgBox = document.getElementById('save-msg');
+      if (respostas.length === 0) { msgBox.innerText = "Nenhuma resposta selecionada."; msgBox.style.color = "#ef4444"; return; }
+
+      msgBox.innerText = "Salvando gabarito... Por favor, aguarde."; msgBox.style.color = "#3b82f6";
+
+      var res = await apiCall("salvar", { turma: document.getElementById('turma').value, respostas: respostas });
+      if (res.sucesso) {
+        msgBox.innerText = "Gabarito salvo com sucesso!"; msgBox.style.color = "#10b981";
+        
+        isSaved = true; // Marca que o salvamento foi bem sucedido
+        
+        var selectDisc = document.getElementById('disciplina');
+        var opcao = selectDisc.options[selectDisc.selectedIndex];
+        opcao.setAttribute('data-status', 'Enviado'); 
+        opcao.innerText = selectDisc.value + " (✓ Enviado)";
+        
+        // Esconde o botão Salvar e mostra o botão Sair
+        document.getElementById('btn-salvar').classList.add('hidden');
+        document.getElementById('btn-sair').classList.remove('hidden');
+
+      } else {
+        msgBox.innerText = "Erro ao salvar: " + res.erro; msgBox.style.color = "#ef4444";
+      }
+    }
+
+    function voltarTurmas() {
+      // Pergunta de segurança caso esteja saindo sem salvar
+      if (!isSaved && !document.getElementById('gabarito-section').classList.contains('hidden')) {
+        if (!confirm("Atenção: Você tem alterações que ainda não foram salvas!\n\nTem certeza que deseja sair e perder essas alterações?")) {
+          return; // Cancela a ação de voltar e mantém na tela
+        }
+      }
+
+      // Limpa os campos e destrava a seleção de turma
+      document.getElementById('turma').value = "";
+      document.getElementById('turma').disabled = false;
+      
+      var selectDisc = document.getElementById('disciplina');
+      selectDisc.innerHTML = '<option value="">-- Selecione a Turma Primeiro --</option>';
+      selectDisc.disabled = true;
+      
+      document.getElementById('gabarito-section').classList.add('hidden');
+      document.getElementById('save-msg').innerText = "";
+    }
+
+    function sairSistema() {
+      // O botão Sair só aparece depois de salvar, então é seguro ir direto
+      voltarTurmas(); 
+      document.getElementById('main-section').classList.add('hidden');
+      document.getElementById('login-section').classList.remove('hidden');
+      document.getElementById('masp').value = "";
+      document.getElementById('login-msg').innerText = "";
+    }
+  </script>
+</body>
+</html>
