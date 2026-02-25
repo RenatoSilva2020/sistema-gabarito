@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Sistema de Gabaritos</title>
   <link rel="icon" href="https://i.ibb.co/JFKTr9sc/logo.png">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; margin: 0; padding: 15px; color: #374151; }
     .container { max-width: 550px; margin: 10px auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
@@ -25,21 +25,14 @@
     }
     input[type="text"]:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
     
-    .grupo-titulo { font-size: 12px; font-weight: 700; color: #6b7280; text-transform: uppercase; margin: 15px 0 8px 0; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px; }
+    /* TÍTULO EM NEGRITO */
+    .grupo-titulo { font-size: 14px; font-weight: 900; color: #111827; text-transform: uppercase; margin: 20px 0 10px 0; border-bottom: 2px solid #e5e7eb; padding-bottom: 6px; }
+
     .grid-turmas { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .btn-turma { 
-      background-color: #f8fafc; border: 1px solid #cbd5e1; color: #334155; 
-      padding: 10px; border-radius: 6px; font-size: 13px; font-weight: 500; 
-      cursor: pointer; text-align: center; transition: all 0.2s;
-    }
+    .btn-turma { background-color: #f8fafc; border: 1px solid #cbd5e1; color: #334155; padding: 10px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; text-align: center; transition: all 0.2s; }
     .btn-turma:hover { background-color: #e2e8f0; border-color: #94a3b8; }
 
-    .btn-disciplina { 
-      display: flex; justify-content: space-between; align-items: center; 
-      width: 100%; background: #ffffff; border: 1px solid #cbd5e1; 
-      padding: 12px 15px; border-radius: 8px; margin-bottom: 8px; 
-      cursor: pointer; transition: all 0.2s; box-sizing: border-box;
-    }
+    .btn-disciplina { display: flex; justify-content: space-between; align-items: center; width: 100%; background: #ffffff; border: 1px solid #cbd5e1; padding: 12px 15px; border-radius: 8px; margin-bottom: 8px; cursor: pointer; transition: all 0.2s; box-sizing: border-box; }
     .btn-disciplina:hover { border-color: #94a3b8; background: #f8fafc; }
     .disc-nome { font-size: 14px; font-weight: 600; color: #1e293b; }
     
@@ -47,11 +40,7 @@
     .badge-pendente { background-color: #ffedd5; color: #c2410c; border: 1px solid #fed7aa; } 
     .badge-enviado { background-color: #d1fae5; color: #15803d; border: 1px solid #a7f3d0; } 
 
-    .selecao-resumo { 
-      display: flex; justify-content: space-between; align-items: center; 
-      background: #eff6ff; border: 1px solid #bfdbfe; padding: 10px 15px; 
-      border-radius: 8px; margin-bottom: 15px; font-size: 13px;
-    }
+    .selecao-resumo { display: flex; justify-content: space-between; align-items: center; background: #eff6ff; border: 1px solid #bfdbfe; padding: 10px 15px; border-radius: 8px; margin-bottom: 15px; font-size: 13px; }
     .btn-alterar { background: none; border: none; color: #2563eb; font-weight: 600; font-size: 12px; cursor: pointer; text-decoration: underline; padding: 0; }
 
     .btn-main { width: 100%; padding: 14px; background-color: #2563eb; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
@@ -128,12 +117,8 @@
         
         <div id="save-msg" class="msg"></div>
       </div>
-
     </div>
-  </div>
-
-  <script>
-    // IMPORTANTE: Mantenha sua URL do Web App do Google Apps Script aqui!
+    <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbwQ9lhzFT7w5SrZZWVTy4RTlkUxGCHiALLWFKDvSuCy1HqL3NpOrGvMDTvcwNSKMbZS/exec"; 
     
     let questoesAtuais = [];
@@ -142,7 +127,6 @@
     let disciplinaAtual = "";
     let statusAtual = ""; 
 
-    // --- CONTROLE DE HISTÓRICO (BOTÃO VOLTAR DO CELULAR) ---
     window.onload = function() {
       window.history.replaceState({ step: 'login' }, '');
     };
@@ -152,11 +136,10 @@
       
       if (step === 'login') {
         if (!document.getElementById('main-section').classList.contains('hidden')) {
-           // O usuário tentou voltar a partir da tela principal (Turmas)
            if (confirm("Deseja realmente sair do sistema?")) {
-             window.location.reload(); // Recarrega a página para limpar tudo
+             window.location.reload(); 
            } else {
-             window.history.pushState({ step: 'turmas' }, ''); // Mantém na tela de turmas
+             window.history.pushState({ step: 'turmas' }, ''); 
            }
         }
       } 
@@ -164,11 +147,10 @@
         mostrarStepTurmas();
       } 
       else if (step === 'disciplinas') {
-        // Verifica se estava no gabarito e tem edições pendentes
         if (!document.getElementById('step-gabarito').classList.contains('hidden')) {
           if (!isSaved && !document.getElementById('btn-salvar').classList.contains('hidden')) {
             if (!confirm("Atenção: Você tem alterações que ainda não foram salvas!\n\nTem certeza que deseja sair e perder essas alterações?")) {
-              window.history.pushState({ step: 'gabarito' }, ''); // Mantém no gabarito
+              window.history.pushState({ step: 'gabarito' }, ''); 
               return;
             }
           }
@@ -180,7 +162,6 @@
       }
     };
 
-    // --- FUNÇÕES DE EXIBIÇÃO DE TELAS ---
     function mostrarStepTurmas() {
       document.getElementById('main-section').classList.remove('hidden');
       document.getElementById('login-section').classList.add('hidden');
@@ -206,7 +187,6 @@
       document.getElementById('step-gabarito').classList.remove('hidden');
     }
 
-    // --- FUNÇÕES DO SISTEMA ---
     async function apiCall(action, data) {
       const response = await fetch(API_URL + "?action=" + action, {
         method: "POST",
@@ -297,14 +277,8 @@
       carregarDisciplinas();
     }
 
-    // Os botões de voltar agora chamam o histórico do navegador para não duplicar regras
-    function voltarParaTurmas() {
-      window.history.back();
-    }
-
-    function voltarParaDisciplinas() {
-      window.history.back();
-    }
+    function voltarParaTurmas() { window.history.back(); }
+    function voltarParaDisciplinas() { window.history.back(); }
 
     async function carregarDisciplinas() {
       var container = document.getElementById('disciplinas-container');
@@ -380,9 +354,7 @@
           select.style.borderLeft = "4px solid #10b981"; 
         }
 
-        if(statusAtual === "Enviado") {
-          select.disabled = true;
-        }
+        if(statusAtual === "Enviado") { select.disabled = true; }
 
         div.appendChild(label); div.appendChild(select); qContainer.appendChild(div);
       });
@@ -485,3 +457,4 @@
   </script>
 </body>
 </html>
+  </div>
