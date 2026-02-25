@@ -265,7 +265,7 @@
 
     function selecionarDisciplina(nomeDisciplina, status) {
       if (status === "Enviado") {
-        if (!confirm("Esta disciplina já possui um gabarito cadastrado!\n\nDeseja visualizar/editar os registos existentes?")) {
+        if (!confirm("Esta disciplina já possui um gabarito cadastrado!\n\nDeseja visualizar/editar os registros existentes?")) {
           return;
         }
       }
@@ -282,7 +282,7 @@
 
     function voltarParaDisciplinas(verificarSalvo = false) {
       if (verificarSalvo && !isSaved) {
-        if (!confirm("Atenção: Tem alterações que ainda não foram guardadas!\n\nTem a certeza que deseja sair e perder essas alterações?")) {
+        if (!confirm("Atenção: Você tem alterações que ainda não foram salvas!\n\nTem certeza que deseja sair e perder essas alterações?")) {
           return; 
         }
       }
@@ -296,7 +296,7 @@
       var qContainer = document.getElementById('questoes-container');
       
       document.getElementById('save-msg').innerText = '';
-      qContainer.innerHTML = '<em style="color:#6b7280; font-size: 13px;">A carregar o formulário...</em>';
+      qContainer.innerHTML = '<em style="color:#6b7280; font-size: 13px;">Carregando o formulário...</em>';
 
       var questoes = await apiCall("getQuestoes", { turma: turmaAtual, disciplina: disciplinaAtual });
       questoesAtuais = questoes;
@@ -357,6 +357,7 @@
       var respostas = [];
       var todasPreenchidas = true;
 
+      // NOVA VALIDAÇÃO: Verifica se alguma questão ficou em branco
       questoesAtuais.forEach(q => {
         var val = document.getElementById('q_' + q.row).value;
         if (val) {
@@ -368,22 +369,18 @@
 
       var msgBox = document.getElementById('save-msg');
 
+      // Se houver alguma em branco, exibe o erro e interrompe a função
       if (!todasPreenchidas) { 
         msgBox.innerText = "Atenção: Todas as questões devem ser preenchidas antes de salvar!"; 
         msgBox.style.color = "#ef4444"; 
         return; 
       }
 
-      // NOVO: Pop-up de confirmação antes de submeter
-      if (!confirm("Tem a certeza que deseja enviar o gabarito?\n\nVerifique se todas as respostas estão corretas antes de confirmar.")) {
-        return; 
-      }
-
-      msgBox.innerText = "A guardar o gabarito... Por favor, aguarde."; msgBox.style.color = "#3b82f6";
+      msgBox.innerText = "Salvando gabarito... Por favor, aguarde."; msgBox.style.color = "#3b82f6";
 
       var res = await apiCall("salvar", { turma: turmaAtual, respostas: respostas });
       if (res.sucesso) {
-        msgBox.innerText = "Gabarito guardado com sucesso!"; msgBox.style.color = "#10b981";
+        msgBox.innerText = "Gabarito salvo com sucesso!"; msgBox.style.color = "#10b981";
         
         isSaved = true; 
         statusAtual = "Enviado"; 
@@ -399,7 +396,7 @@
         carregarDisciplinas(); 
 
       } else {
-        msgBox.innerText = "Erro ao guardar: " + res.erro; msgBox.style.color = "#ef4444";
+        msgBox.innerText = "Erro ao salvar: " + res.erro; msgBox.style.color = "#ef4444";
       }
     }
 
