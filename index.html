@@ -63,6 +63,10 @@
     .btn-warning { background-color: #f59e0b; width: 100%; padding: 14px; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; margin-top: 15px; cursor: pointer;}
     .btn-warning:hover { background-color: #d97706; }
 
+    /* NOVO BOTÃO DE LIMPAR */
+    .btn-gray { background-color: #6b7280; width: 100%; padding: 14px; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; margin-top: 10px; cursor: pointer;}
+    .btn-gray:hover { background-color: #4b5563; }
+
     .btn-red { background-color: #ef4444; width: 100%; padding: 14px; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; margin-top: 10px; cursor: pointer;}
     .btn-red:hover { background-color: #dc2626; }
 
@@ -119,6 +123,7 @@
         <div id="questoes-container"></div>
         
         <button id="btn-salvar" class="btn-success" onclick="salvar()">Salvar Gabarito</button>
+        <button id="btn-limpar" class="btn-gray" onclick="limparRespostas()">Limpar Preenchimento</button>
         <button id="btn-editar" class="btn-warning hidden" onclick="habilitarEdicao()">Editar Respostas</button>
         <button id="btn-sair" class="btn-red hidden" onclick="sairSistema()">Sair do Sistema</button>
         
@@ -173,10 +178,7 @@
       var n = nome.toUpperCase();
       
       if (n.includes("ANO")) return "FUNDAMENTAL";
-      
-      // NOVA REGRA: Agrupando REG e TEC no mesmo grupo
       if (n.includes("REG - DIURNO") || n.includes("TEC - DIURNO")) return "REGULAR DIURNO";
-      
       if (n.includes("REG - NOTURNO (SEDE)")) return "REGULAR NOTURNO (SEDE)";
       if (n.includes("REG - NOTURNO (MORADA)")) return "REGULAR NOTURNO (MORADA)";
       if (n.includes("EJA - NOTURNO (SEDE)")) return "EJA NOTURNO (SEDE)";
@@ -333,14 +335,30 @@
 
       if(statusAtual === "Enviado") {
         document.getElementById('btn-salvar').classList.add('hidden');
+        document.getElementById('btn-limpar').classList.add('hidden'); // Ocultar botão limpar se estiver bloqueado
         document.getElementById('btn-editar').classList.remove('hidden');
         document.getElementById('btn-sair').classList.remove('hidden');
         isSaved = true; 
       } else {
         document.getElementById('btn-salvar').classList.remove('hidden');
+        document.getElementById('btn-limpar').classList.remove('hidden'); // Exibir botão limpar
         document.getElementById('btn-editar').classList.add('hidden');
         document.getElementById('btn-sair').classList.add('hidden');
         isSaved = false;
+      }
+    }
+
+    // NOVA FUNÇÃO: Limpar Respostas
+    function limparRespostas() {
+      if (confirm("Tem certeza que deseja limpar todas as respostas preenchidas?\n\nEsta ação apagará o preenchimento atual na tela.")) {
+        questoesAtuais.forEach(q => {
+          var select = document.getElementById('q_' + q.row);
+          select.value = '';
+          select.style.borderLeft = "1px solid #cbd5e1"; // Remove a borda verde caso estivesse editando um salvo
+        });
+        var msgBox = document.getElementById('save-msg');
+        msgBox.innerText = "Respostas limpas. Você pode iniciar um novo preenchimento.";
+        msgBox.style.color = "#6b7280";
       }
     }
 
@@ -351,6 +369,7 @@
       
       document.getElementById('btn-editar').classList.add('hidden');
       document.getElementById('btn-salvar').classList.remove('hidden');
+      document.getElementById('btn-limpar').classList.remove('hidden'); // Exibir o limpar durante a edição
       
       var msgBox = document.getElementById('save-msg');
       msgBox.innerText = "Modo de edição ativado. Altere as respostas e clique em Salvar.";
@@ -394,6 +413,7 @@
         });
 
         document.getElementById('btn-salvar').classList.add('hidden');
+        document.getElementById('btn-limpar').classList.add('hidden'); // Ocultar botão limpar após salvar
         document.getElementById('btn-editar').classList.remove('hidden');
         document.getElementById('btn-sair').classList.remove('hidden');
         
