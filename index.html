@@ -63,7 +63,6 @@
     .btn-warning { background-color: #f59e0b; width: 100%; padding: 14px; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; margin-top: 15px; cursor: pointer;}
     .btn-warning:hover { background-color: #d97706; }
 
-    /* NOVO BOTÃO DE LIMPAR */
     .btn-gray { background-color: #6b7280; width: 100%; padding: 14px; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; margin-top: 10px; cursor: pointer;}
     .btn-gray:hover { background-color: #4b5563; }
 
@@ -116,7 +115,7 @@
       <div id="step-gabarito" class="hidden">
         <div class="selecao-resumo" style="background: #f0fdf4; border-color: #bbf7d0;">
           <div>Disciplina: <strong id="lbl-disciplina-selecionada"></strong></div>
-          <button class="btn-alterar" onclick="voltarParaDisciplinas(true)" style="color: #15803d;">Sair da Disciplina</button>
+          <button class="btn-alterar" onclick="voltarParaDisciplinas()" style="color: #15803d;">Sair da Disciplina</button>
         </div>
         
         <h4 style="margin-top: 10px; margin-bottom: 15px; font-size: 15px; color: #1f2937;">Preencha o Gabarito:</h4>
@@ -143,6 +142,71 @@
     let disciplinaAtual = "";
     let statusAtual = ""; 
 
+    // --- CONTROLE DE HISTÓRICO (BOTÃO VOLTAR DO CELULAR) ---
+    window.onload = function() {
+      window.history.replaceState({ step: 'login' }, '');
+    };
+
+    window.onpopstate = function(event) {
+      const step = event.state ? event.state.step : 'login';
+      
+      if (step === 'login') {
+        if (!document.getElementById('main-section').classList.contains('hidden')) {
+           // O usuário tentou voltar a partir da tela principal (Turmas)
+           if (confirm("Deseja realmente sair do sistema?")) {
+             window.location.reload(); // Recarrega a página para limpar tudo
+           } else {
+             window.history.pushState({ step: 'turmas' }, ''); // Mantém na tela de turmas
+           }
+        }
+      } 
+      else if (step === 'turmas') {
+        mostrarStepTurmas();
+      } 
+      else if (step === 'disciplinas') {
+        // Verifica se estava no gabarito e tem edições pendentes
+        if (!document.getElementById('step-gabarito').classList.contains('hidden')) {
+          if (!isSaved && !document.getElementById('btn-salvar').classList.contains('hidden')) {
+            if (!confirm("Atenção: Você tem alterações que ainda não foram salvas!\n\nTem certeza que deseja sair e perder essas alterações?")) {
+              window.history.pushState({ step: 'gabarito' }, ''); // Mantém no gabarito
+              return;
+            }
+          }
+        }
+        mostrarStepDisciplinas();
+      }
+      else if (step === 'gabarito') {
+        mostrarStepGabarito();
+      }
+    };
+
+    // --- FUNÇÕES DE EXIBIÇÃO DE TELAS ---
+    function mostrarStepTurmas() {
+      document.getElementById('main-section').classList.remove('hidden');
+      document.getElementById('login-section').classList.add('hidden');
+      document.getElementById('step-turmas').classList.remove('hidden');
+      document.getElementById('step-disciplinas').classList.add('hidden');
+      document.getElementById('step-gabarito').classList.add('hidden');
+    }
+
+    function mostrarStepDisciplinas() {
+      document.getElementById('main-section').classList.remove('hidden');
+      document.getElementById('login-section').classList.add('hidden');
+      document.getElementById('step-turmas').classList.add('hidden');
+      document.getElementById('step-disciplinas').classList.remove('hidden');
+      document.getElementById('step-gabarito').classList.add('hidden');
+      document.getElementById('save-msg').innerText = ''; 
+    }
+
+    function mostrarStepGabarito() {
+      document.getElementById('main-section').classList.remove('hidden');
+      document.getElementById('login-section').classList.add('hidden');
+      document.getElementById('step-turmas').classList.add('hidden');
+      document.getElementById('step-disciplinas').classList.add('hidden');
+      document.getElementById('step-gabarito').classList.remove('hidden');
+    }
+
+    // --- FUNÇÕES DO SISTEMA ---
     async function apiCall(action, data) {
       const response = await fetch(API_URL + "?action=" + action, {
         method: "POST",
@@ -162,9 +226,9 @@
       try {
         var res = await apiCall("login", { masp: masp });
         if (res.sucesso) {
-          document.getElementById('login-section').classList.add('hidden');
-          document.getElementById('main-section').classList.remove('hidden');
           document.getElementById('welcome-msg').innerText = "Olá, " + res.nome;
+          window.history.pushState({ step: 'turmas' }, '');
+          mostrarStepTurmas();
           carregarTurmas();
         } else {
           msgBox.innerText = res.erro; msgBox.style.color = "#ef4444";
@@ -176,14 +240,12 @@
 
     function classificarTurma(nome) {
       var n = nome.toUpperCase();
-      
       if (n.includes("ANO")) return "FUNDAMENTAL";
       if (n.includes("REG - DIURNO") || n.includes("TEC - DIURNO")) return "REGULAR DIURNO";
       if (n.includes("REG - NOTURNO (SEDE)")) return "REGULAR NOTURNO (SEDE)";
       if (n.includes("REG - NOTURNO (MORADA)")) return "REGULAR NOTURNO (MORADA)";
       if (n.includes("EJA - NOTURNO (SEDE)")) return "EJA NOTURNO (SEDE)";
       if (n.includes("EJA - NOTURNO (MORADA)")) return "EJA NOTURNO (MORADA)";
-      
       return "OUTRAS TURMAS";
     }
 
@@ -230,14 +292,18 @@
     function selecionarTurma(nomeTurma) {
       turmaAtual = nomeTurma;
       document.getElementById('lbl-turma-selecionada').innerText = nomeTurma;
-      document.getElementById('step-turmas').classList.add('hidden');
-      document.getElementById('step-disciplinas').classList.remove('hidden');
+      window.history.pushState({ step: 'disciplinas' }, '');
+      mostrarStepDisciplinas();
       carregarDisciplinas();
     }
 
+    // Os botões de voltar agora chamam o histórico do navegador para não duplicar regras
     function voltarParaTurmas() {
-      document.getElementById('step-disciplinas').classList.add('hidden');
-      document.getElementById('step-turmas').classList.remove('hidden');
+      window.history.back();
+    }
+
+    function voltarParaDisciplinas() {
+      window.history.back();
     }
 
     async function carregarDisciplinas() {
@@ -282,22 +348,10 @@
       statusAtual = status; 
       
       document.getElementById('lbl-disciplina-selecionada').innerText = nomeDisciplina;
-      document.getElementById('step-disciplinas').classList.add('hidden');
-      document.getElementById('step-gabarito').classList.remove('hidden');
+      window.history.pushState({ step: 'gabarito' }, '');
+      mostrarStepGabarito();
       
       carregarQuestoes();
-    }
-
-    function voltarParaDisciplinas(verificarSalvo = false) {
-      if (verificarSalvo && !isSaved) {
-        if (!confirm("Atenção: Você tem alterações que ainda não foram salvas!\n\nTem certeza que deseja sair e perder essas alterações?")) {
-          return; 
-        }
-      }
-      
-      document.getElementById('step-gabarito').classList.add('hidden');
-      document.getElementById('step-disciplinas').classList.remove('hidden');
-      document.getElementById('save-msg').innerText = '';
     }
 
     async function carregarQuestoes() {
@@ -335,26 +389,25 @@
 
       if(statusAtual === "Enviado") {
         document.getElementById('btn-salvar').classList.add('hidden');
-        document.getElementById('btn-limpar').classList.add('hidden'); // Ocultar botão limpar se estiver bloqueado
+        document.getElementById('btn-limpar').classList.add('hidden'); 
         document.getElementById('btn-editar').classList.remove('hidden');
         document.getElementById('btn-sair').classList.remove('hidden');
         isSaved = true; 
       } else {
         document.getElementById('btn-salvar').classList.remove('hidden');
-        document.getElementById('btn-limpar').classList.remove('hidden'); // Exibir botão limpar
+        document.getElementById('btn-limpar').classList.remove('hidden'); 
         document.getElementById('btn-editar').classList.add('hidden');
         document.getElementById('btn-sair').classList.add('hidden');
         isSaved = false;
       }
     }
 
-    // NOVA FUNÇÃO: Limpar Respostas
     function limparRespostas() {
       if (confirm("Tem certeza que deseja limpar todas as respostas preenchidas?\n\nEsta ação apagará o preenchimento atual na tela.")) {
         questoesAtuais.forEach(q => {
           var select = document.getElementById('q_' + q.row);
           select.value = '';
-          select.style.borderLeft = "1px solid #cbd5e1"; // Remove a borda verde caso estivesse editando um salvo
+          select.style.borderLeft = "1px solid #cbd5e1"; 
         });
         var msgBox = document.getElementById('save-msg');
         msgBox.innerText = "Respostas limpas. Você pode iniciar um novo preenchimento.";
@@ -369,7 +422,7 @@
       
       document.getElementById('btn-editar').classList.add('hidden');
       document.getElementById('btn-salvar').classList.remove('hidden');
-      document.getElementById('btn-limpar').classList.remove('hidden'); // Exibir o limpar durante a edição
+      document.getElementById('btn-limpar').classList.remove('hidden'); 
       
       var msgBox = document.getElementById('save-msg');
       msgBox.innerText = "Modo de edição ativado. Altere as respostas e clique em Salvar.";
@@ -413,7 +466,7 @@
         });
 
         document.getElementById('btn-salvar').classList.add('hidden');
-        document.getElementById('btn-limpar').classList.add('hidden'); // Ocultar botão limpar após salvar
+        document.getElementById('btn-limpar').classList.add('hidden'); 
         document.getElementById('btn-editar').classList.remove('hidden');
         document.getElementById('btn-sair').classList.remove('hidden');
         
@@ -425,12 +478,9 @@
     }
 
     function sairSistema() {
-      voltarParaDisciplinas(); 
-      voltarParaTurmas();
-      document.getElementById('main-section').classList.add('hidden');
-      document.getElementById('login-section').classList.remove('hidden');
-      document.getElementById('masp').value = "";
-      document.getElementById('login-msg').innerText = "";
+      if (confirm("Deseja realmente sair do sistema?")) {
+        window.location.reload(); 
+      }
     }
   </script>
 </body>
