@@ -129,6 +129,7 @@
   </div>
 
   <script>
+    // IMPORTANTE: Mantenha sua URL do Web App do Google Apps Script aqui!
     const API_URL = "https://script.google.com/macros/s/AKfycbwQ9lhzFT7w5SrZZWVTy4RTlkUxGCHiALLWFKDvSuCy1HqL3NpOrGvMDTvcwNSKMbZS/exec"; 
     
     let questoesAtuais = [];
@@ -170,12 +171,17 @@
 
     function classificarTurma(nome) {
       var n = nome.toUpperCase();
+      
       if (n.includes("ANO")) return "FUNDAMENTAL";
-      if (n.includes("REG - DIURNO")) return "REGULAR DIURNO";
+      
+      // NOVA REGRA: Agrupando REG e TEC no mesmo grupo
+      if (n.includes("REG - DIURNO") || n.includes("TEC - DIURNO")) return "REGULAR DIURNO";
+      
       if (n.includes("REG - NOTURNO (SEDE)")) return "REGULAR NOTURNO (SEDE)";
       if (n.includes("REG - NOTURNO (MORADA)")) return "REGULAR NOTURNO (MORADA)";
       if (n.includes("EJA - NOTURNO (SEDE)")) return "EJA NOTURNO (SEDE)";
       if (n.includes("EJA - NOTURNO (MORADA)")) return "EJA NOTURNO (MORADA)";
+      
       return "OUTRAS TURMAS";
     }
 
@@ -357,7 +363,6 @@
       var respostas = [];
       var todasPreenchidas = true;
 
-      // NOVA VALIDAÇÃO: Verifica se alguma questão ficou em branco
       questoesAtuais.forEach(q => {
         var val = document.getElementById('q_' + q.row).value;
         if (val) {
@@ -369,7 +374,6 @@
 
       var msgBox = document.getElementById('save-msg');
 
-      // Se houver alguma em branco, exibe o erro e interrompe a função
       if (!todasPreenchidas) { 
         msgBox.innerText = "Atenção: Todas as questões devem ser preenchidas antes de salvar!"; 
         msgBox.style.color = "#ef4444"; 
