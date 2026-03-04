@@ -19,13 +19,9 @@
     .form-group { margin-bottom: 20px; }
     label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; color: #1f2937; }
     
-    input[type="text"] { 
-      width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; box-sizing: border-box; 
-      font-size: 14px; transition: border-color 0.2s; background-color: #ffffff; color: #111827;
-    }
+    input[type="text"] { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; box-sizing: border-box; font-size: 14px; transition: border-color 0.2s; background-color: #ffffff; color: #111827; }
     input[type="text"]:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
     
-    /* TÍTULO EM NEGRITO */
     .grupo-titulo { font-size: 14px; font-weight: 900; color: #111827; text-transform: uppercase; margin: 20px 0 10px 0; border-bottom: 2px solid #e5e7eb; padding-bottom: 6px; }
 
     .grid-turmas { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -61,10 +57,23 @@
     .questao { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; padding: 10px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; }
     .questao label { margin: 0; width: 35%; font-weight: 600; font-size: 14px; }
     .questao select { width: 60%; padding: 10px; font-size: 14px; border: 1px solid #cbd5e1; border-radius: 6px; }
-    
     .questao select:disabled { background-color: #f1f5f9; color: #94a3b8; cursor: not-allowed; border-color: #e2e8f0; opacity: 1; }
     
     .msg { text-align: center; font-weight: 600; margin-top: 15px; font-size: 14px; }
+
+    /* ESTILOS DO NOVO MODAL (POPUP) */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+    .modal-content { background: white; padding: 25px 20px; border-radius: 16px; width: 85%; max-width: 320px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); animation: fadeIn 0.2s ease-out; }
+    .modal-content h4 { margin: 0 0 10px 0; font-size: 18px; color: #1f2937; font-weight: 700; }
+    .modal-content p { margin: 0 0 20px 0; font-size: 14px; color: #6b7280; line-height: 1.5; white-space: pre-line; } /* pre-line permite que as quebras de linha \n funcionem */
+    .modal-buttons { display: flex; gap: 10px; justify-content: space-between; }
+    .modal-btn { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; transition: opacity 0.2s; }
+    .modal-btn:active { opacity: 0.8; }
+    .modal-btn-cancel { background: #e2e8f0; color: #334155; }
+    .modal-btn-confirm { background: #ef4444; color: white; }
+    .modal-btn-confirm.blue { background: #2563eb; }
+    .modal-btn-confirm.orange { background: #f59e0b; }
+    @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
   </style>
 </head>
 <body>
@@ -119,6 +128,17 @@
       </div>
     </div>
   </div>
+
+  <div id="custom-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <h4 id="modal-title">Título</h4>
+      <p id="modal-message">Mensagem do modal.</p>
+      <div class="modal-buttons">
+        <button id="modal-btn-cancel" class="modal-btn modal-btn-cancel">Cancelar</button>
+        <button id="modal-btn-confirm" class="modal-btn modal-btn-confirm">Confirmar</button>
+      </div>
+    </div>
+  </div>
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbwQ9lhzFT7w5SrZZWVTy4RTlkUxGCHiALLWFKDvSuCy1HqL3NpOrGvMDTvcwNSKMbZS/exec"; 
     
@@ -128,16 +148,44 @@
     let disciplinaAtual = "";
     let statusAtual = ""; 
 
+    // --- FUNÇÃO DO NOVO MODAL ---
+    function customConfirm(title, message, confirmText = "Confirmar", cancelText = "Cancelar", isAlert = false, confirmColorClass = "") {
+      return new Promise((resolve) => {
+        const overlay = document.getElementById('custom-modal');
+        document.getElementById('modal-title').innerText = title;
+        document.getElementById('modal-message').innerText = message;
+        
+        const btnConfirm = document.getElementById('modal-btn-confirm');
+        const btnCancel = document.getElementById('modal-btn-cancel');
+        
+        btnConfirm.innerText = confirmText;
+        btnConfirm.className = 'modal-btn modal-btn-confirm ' + confirmColorClass;
+        
+        if (isAlert) {
+          btnCancel.style.display = 'none';
+        } else {
+          btnCancel.style.display = 'block';
+          btnCancel.innerText = cancelText;
+        }
+
+        overlay.classList.remove('hidden');
+
+        btnConfirm.onclick = () => { overlay.classList.add('hidden'); resolve(true); };
+        btnCancel.onclick = () => { overlay.classList.add('hidden'); resolve(false); };
+      });
+    }
+
     window.onload = function() {
       window.history.replaceState({ step: 'login' }, '');
     };
 
-    window.onpopstate = function(event) {
+    window.onpopstate = async function(event) {
       const step = event.state ? event.state.step : 'login';
       
       if (step === 'login') {
         if (!document.getElementById('main-section').classList.contains('hidden')) {
-           if (confirm("Deseja realmente sair do sistema?")) {
+           const sair = await customConfirm("Sair do sistema?", "Você retornará para a tela inicial.", "Sair", "Cancelar");
+           if (sair) {
              window.location.reload(); 
            } else {
              window.history.pushState({ step: 'turmas' }, ''); 
@@ -150,7 +198,8 @@
       else if (step === 'disciplinas') {
         if (!document.getElementById('step-gabarito').classList.contains('hidden')) {
           if (!isSaved && !document.getElementById('btn-salvar').classList.contains('hidden')) {
-            if (!confirm("Atenção: Você tem alterações que ainda não foram salvas!\n\nTem certeza que deseja sair e perder essas alterações?")) {
+            const sairSemSalvar = await customConfirm("Atenção!", "Você tem alterações que ainda não foram salvas!\n\nDeseja sair e perder essas alterações?", "Sair sem salvar", "Cancelar", false, "orange");
+            if (!sairSemSalvar) {
               window.history.pushState({ step: 'gabarito' }, ''); 
               return;
             }
@@ -199,7 +248,10 @@
 
     async function fazerLogin() {
       var masp = document.getElementById('masp').value;
-      if (!masp) { alert('Por favor, informe o MASP.'); return; }
+      if (!masp) { 
+        await customConfirm("Atenção", "Por favor, informe o seu MASP para continuar.", "OK", "", true, "blue");
+        return; 
+      }
       
       var msgBox = document.getElementById('login-msg');
       msgBox.innerText = "Autenticando..."; msgBox.style.color = "#3b82f6";
@@ -242,10 +294,7 @@
         grupos[grupo].push(t);
       });
 
-      var ordemGrupos = [
-        "FUNDAMENTAL", "REGULAR DIURNO", "REGULAR NOTURNO (SEDE)", 
-        "REGULAR NOTURNO (MORADA)", "EJA NOTURNO (SEDE)", "EJA NOTURNO (MORADA)", "OUTRAS TURMAS"
-      ];
+      var ordemGrupos = ["FUNDAMENTAL", "REGULAR DIURNO", "REGULAR NOTURNO (SEDE)", "REGULAR NOTURNO (MORADA)", "EJA NOTURNO (SEDE)", "EJA NOTURNO (MORADA)", "OUTRAS TURMAS"];
 
       ordemGrupos.forEach(nomeGrupo => {
         if(grupos[nomeGrupo] && grupos[nomeGrupo].length > 0) {
@@ -312,11 +361,14 @@
       });
     }
 
-    function selecionarDisciplina(nomeDisciplina, status) {
+    async function selecionarDisciplina(nomeDisciplina, status) {
       if (status === "Enviado") {
-        if (!confirm("Esta disciplina já possui um gabarito cadastrado!\n\nDeseja visualizar/editar os registros existentes?")) {
-          return;
-        }
+        const confirmar = await customConfirm(
+          "Gabarito Cadastrado", 
+          "Esta disciplina já possui um gabarito.\n\nDeseja visualizar ou editar os registros?", 
+          "Visualizar", "Cancelar", false, "blue"
+        );
+        if (!confirmar) return;
       }
       
       disciplinaAtual = nomeDisciplina;
@@ -325,7 +377,6 @@
       document.getElementById('lbl-disciplina-selecionada').innerText = nomeDisciplina;
       window.history.pushState({ step: 'gabarito' }, '');
       mostrarStepGabarito();
-      
       carregarQuestoes();
     }
 
@@ -375,8 +426,14 @@
       }
     }
 
-    function limparRespostas() {
-      if (confirm("Tem certeza que deseja limpar todas as respostas preenchidas?\n\nEsta ação apagará o preenchimento atual na tela.")) {
+    async function limparRespostas() {
+      const confirmar = await customConfirm(
+        "Limpar preenchimento?", 
+        "Tem certeza que deseja limpar todas as respostas preenchidas? Esta ação apagará o preenchimento atual da tela.", 
+        "Sim, Limpar", "Cancelar"
+      );
+
+      if (confirmar) {
         questoesAtuais.forEach(q => {
           var select = document.getElementById('q_' + q.row);
           select.value = '';
@@ -450,8 +507,9 @@
       }
     }
 
-    function sairSistema() {
-      if (confirm("Deseja realmente sair do sistema?")) {
+    async function sairSistema() {
+      const sair = await customConfirm("Sair do sistema?", "Você retornará para a página de login.", "Sair", "Cancelar");
+      if (sair) {
         window.location.reload(); 
       }
     }
